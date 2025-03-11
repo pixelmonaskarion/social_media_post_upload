@@ -42,7 +42,7 @@ pub async fn info_upload(event: Request) -> Result<Response<Body>, Error> {
     
     }
 
-    let Some(region) = get_region(&info.location) else {
+    let Some((r_long, r_lat)) = get_region_i64(&info.location) else {
         return Ok(Response::builder()
             .status(400)
             .body(Body::from("Invalid location"))
@@ -53,7 +53,9 @@ pub async fn info_upload(event: Request) -> Result<Response<Body>, Error> {
     let client = DynamoDBClient::new().await?;
     let mut item = HashMap::new();
     item.insert("id".into(), AttributeValue::S(info.content_id));
-    item.insert("region".into(), AttributeValue::S(region));
+    item.insert("r_long".into(), AttributeValue::S(r_long.to_string()));
+    item.insert("r_lat".into(), AttributeValue::S(r_lat.to_string()));
+    item.insert("region".into(), AttributeValue::S(format!("{r_long},{r_lat}")));
     item.insert("location".into(), AttributeValue::S(info.location));
     item.insert("info".into(), AttributeValue::S(info_string));
     item.insert("date".into(), AttributeValue::N(now.as_millis().to_string()));

@@ -24,17 +24,18 @@ pub async fn recommend_posts(event: Request) -> Result<Response<Body>, Error> {
     let posts = client.client.scan()
         .table_name("SocialMediaPosts")
         .filter_expression("
-        (#r LIKE :long,% AND #r LIKE %,:lat) OR
-        (#r LIKE :longP,% AND #r LIKE %,:lat) OR
-        (#r LIKE :long,% AND #r LIKE %,:latP) OR
-        (#r LIKE :longP,% AND #r LIKE %,:latP) OR
-        (#r LIKE :longN,% AND #r LIKE %,:lat) OR
-        (#r LIKE :long,% AND #r LIKE %,:latN) OR
-        (#r LIKE :longN,% AND #r LIKE %,:latN) OR
-        (#r LIKE :longP,% AND #r LIKE %,:latN) OR
-        (#r LIKE :longN,% AND #r LIKE %,:latP) OR
+        (#rlong = :long AND #rlat = :lat) OR
+        (#rlong = :longP AND #rlat = :lat) OR
+        (#rlong = :long AND #rlat = :latP) OR
+        (#rlong = :longP AND #rlat = :latP) OR
+        (#rlong = :longN AND #rlat = :lat) OR
+        (#rlong = :long AND #rlat = :latN) OR
+        (#rlong = :longN AND #rlat = :latN) OR
+        (#rlong = :longP AND #rlat = :latN) OR
+        (#rlong = :longN AND #rlat = :latP)
         ")
-        .expression_attribute_names("#r", "region")
+        .expression_attribute_names("#rlong", "r_long")
+        .expression_attribute_names("#rlat", "r_lat")
         .expression_attribute_values(":long", AttributeValue::S(format!("{region_long}")))
         .expression_attribute_values(":longP", AttributeValue::S(format!("{}", region_long+1)))
         .expression_attribute_values(":longN", AttributeValue::S(format!("{}", region_long-1)))
